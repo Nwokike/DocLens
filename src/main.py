@@ -58,7 +58,7 @@ async def main(page: ft.Page):
     credit_service = CreditService(storage)
 
     page.run_task(ad_service.preload_interstitial)
-    page.run_task(credit_service.initialize())
+    page.run_task(credit_service.initialize)
 
     pending_image = None
 
