@@ -14,15 +14,17 @@ def build_scan_view(
     on_gallery,
     credit_service,
 ) -> ft.View:
-    async def _open_camera_async():
+    async def _try_use_scan():
         remaining = await credit_service.get_remaining()
-        if remaining <= 0:
-            page.show_dialog(
-                ft.SnackBar(
-                    content=ft.Text("Daily scans used up. Watch an ad to continue."),
-                    bgcolor=ft.Colors.WARNING,
-                )
-            )
+        if remaining > 0:
+            return True
+        ok = await ad_service.show_rewarded()
+        if ok:
+            return await credit_service.use_scan()
+        return False
+
+    async def _open_camera_async():
+        if not await _try_use_scan():
             return
         await ad_service.show_interstitial()
         await on_camera()
@@ -31,14 +33,7 @@ def build_scan_view(
         page.run_task(_open_camera_async)
 
     async def _open_gallery_async():
-        remaining = await credit_service.get_remaining()
-        if remaining <= 0:
-            page.show_dialog(
-                ft.SnackBar(
-                    content=ft.Text("Daily scans used up. Watch an ad to continue."),
-                    bgcolor=ft.Colors.WARNING,
-                )
-            )
+        if not await _try_use_scan():
             return
         await ad_service.show_interstitial()
         on_gallery()

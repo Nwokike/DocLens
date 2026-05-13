@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 _HAS_ADS = False
 try:
-    from flet_ads import BannerAd, InterstitialAd
+    from flet_ads import BannerAd, InterstitialAd, RewardedAd
 
     _HAS_ADS = True
 except ImportError:
@@ -22,6 +22,7 @@ class AdService:
     def __init__(self, page: ft.Page):
         self._page = page
         self._interstitial = None
+        self._rewarded = None
         self._available = _HAS_ADS and _is_mobile()
 
     @property
@@ -34,16 +35,9 @@ class AdService:
         try:
             from core.constants import AD_BANNER_ANDROID
 
-            ad = BannerAd(
-                unit_id=AD_BANNER_ANDROID,
-                on_error=lambda e: None,
-            )
+            ad = BannerAd(unit_id=AD_BANNER_ANDROID, on_error=lambda e: None)
             return ft.Container(
-                content=ad,
-                width=320,
-                height=50,
-                alignment=ft.Alignment.CENTER,
-                padding=ft.Padding(0, 10, 0, 10),
+                content=ad, width=320, height=50, alignment=ft.Alignment.CENTER, padding=ft.Padding(0, 10, 0, 10)
             )
         except Exception:
             return ft.Container(width=0, height=0)
@@ -55,21 +49,34 @@ class AdService:
             from core.constants import AD_INTERSTITIAL_ANDROID
 
             self._interstitial = InterstitialAd(
-                unit_id=AD_INTERSTITIAL_ANDROID,
-                on_load=lambda e: None,
-                on_error=lambda e: None,
-                on_close=self._handle_close,
+                unit_id=AD_INTERSTITIAL_ANDROID, on_error=lambda e: None, on_close=lambda e: None
             )
         except Exception:
             self._interstitial = None
-
-    async def _handle_close(self, e):
-        await self.preload_interstitial()
 
     async def show_interstitial(self) -> bool:
         if self._interstitial:
             try:
                 await self._interstitial.show()
+                return True
+            except Exception:
+                return False
+        return False
+
+    async def preload_rewarded(self):
+        if not self._available:
+            return
+        try:
+            from core.constants import AD_REWARDED_ANDROID
+
+            self._rewarded = RewardedAd(unit_id=AD_REWARDED_ANDROID, on_error=lambda e: None, on_close=lambda e: None)
+        except Exception:
+            self._rewarded = None
+
+    async def show_rewarded(self) -> bool:
+        if self._rewarded:
+            try:
+                await self._rewarded.show()
                 return True
             except Exception:
                 return False
