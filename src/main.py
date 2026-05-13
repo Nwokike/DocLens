@@ -35,65 +35,21 @@ async def main(page: ft.Page):
     page.padding = 0
     page.spacing = 0
 
-    def on_error(e):
-        logger.error("Page error: %s", e.data)
-        page.snack_bar = ft.SnackBar(
-            content=ft.Text("Something went wrong.", color=ft.Colors.WHITE),
-            bgcolor=ft.Colors.BLACK,
-        )
-        page.snack_bar.open = True
-        page.update()
-
-    page.on_error = on_error
+    page.on_error = lambda e: (
+        page.show_dialog(ft.SnackBar(content=ft.Text("Something went wrong.")))
+    )
 
     ad_service = AdService(page)
-    credit_service = CreditService(page)
+    credit_service = CreditService()
 
-    splash = ft.Container(
-        content=ft.Column(
-            [
-                ft.Icon(ft.Icons.DOCUMENT_SCANNER_ROUNDED, size=80, color="#2563EB"),
-                ft.Container(height=16),
-                ft.Text("DocLens", size=32, weight=ft.FontWeight.BOLD, color="#2563EB"),
-                ft.Text("AI Document Scanner", size=14, color=ft.Colors.ON_SURFACE_VARIANT),
-                ft.Container(height=40),
-                ft.ProgressRing(width=24, height=24, stroke_width=2, color="#2563EB"),
-            ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            alignment=ft.MainAxisAlignment.CENTER,
-        ),
-        expand=True,
-        alignment=ft.Alignment.CENTER,
-    )
-    page.views.append(ft.View(route="/splash", controls=[splash], padding=0))
-    page.update()
-
-    async def _init_services():
-        try:
-            await credit_service.initialize()
-        except Exception as e:
-            logger.warning("Credit init deferred (device session not ready yet): %s", e)
-        try:
-            page.run_task(ad_service.preload_interstitial)
-        except Exception:
-            pass
-
-    async def _on_connect(e):
-        logger.info("Page session connected — retrying service init")
-        try:
-            await credit_service.initialize()
-        except Exception:
-            pass
-
-    page.on_connect = _on_connect
-    await _init_services()
-
-    await asyncio.sleep(1.5)
+    page.run_task(ad_service.preload_interstitial)
 
     pending_image = None
 
     async def _process_and_navigate(data, mime, filename):
         nonlocal pending_image
+        if not credit_service.ready:
+            await credit_service.initialize()
         ok = await credit_service.use_scan()
         if not ok:
             page.show_dialog(
@@ -135,9 +91,7 @@ async def main(page: ft.Page):
             if viewfinder in page.overlay:
                 page.overlay.remove(viewfinder)
                 page.update()
-            page.show_dialog(
-                ft.SnackBar(content=ft.Text("Camera not available"))
-            )
+            page.show_dialog(ft.SnackBar(content=ft.Text("Camera not available")))
 
     def on_gallery():
         file_picker.pick_image()
@@ -148,30 +102,14 @@ async def main(page: ft.Page):
 
     async def route_change(e=None):
         route = page.route
-        logger.info("Route: %s", route)
-
         page.views.clear()
 
-        if route in ("/splash", "/"):
-            from views.splash import build_splash_view
-
-            page.views.append(build_splash_view(page, navigate))
-            page.update()
-
-        elif route == "/scan":
+        if route in ("/", "/scan"):
             from views.scan import build_scan_view
 
             page.views.append(
-                build_scan_view(
-                    page,
-                    navigate,
-                    ad_service,
-                    on_camera,
-                    on_gallery,
-                    credit_service,
-                )
+                build_scan_view(page, navigate, ad_service, on_camera, on_gallery, credit_service)
             )
-            page.update()
 
         elif route == "/result":
             if not state.current_image:
@@ -180,7 +118,6 @@ async def main(page: ft.Page):
             from views.result import build_result_view
 
             page.views.append(build_result_view(page, navigate))
-            page.update()
 
         elif route == "/summary":
             if not state.current_image:
@@ -189,7 +126,6 @@ async def main(page: ft.Page):
             from views.summary import build_summary_view
 
             page.views.append(build_summary_view(page, navigate))
-            page.update()
 
         elif route == "/translate":
             if not state.current_image:
@@ -198,17 +134,17 @@ async def main(page: ft.Page):
             from views.translate import build_translate_view
 
             page.views.append(build_translate_view(page, navigate))
-            page.update()
 
         elif route == "/settings":
             from views.settings import build_settings_view
 
             view = await build_settings_view(page, navigate, credit_service, ad_service)
             page.views.append(view)
-            page.update()
 
         else:
-            await navigate("/splash")
+            await navigate("/scan")
+
+        page.update()
 
     async def view_pop(e):
         page.views.pop()
@@ -219,7 +155,7 @@ async def main(page: ft.Page):
 
     page.on_route_change = route_change
     page.on_view_pop = view_pop
-    page.route = "/splash"
+    page.route = "/scan"
     await route_change()
 
 

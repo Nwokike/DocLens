@@ -4,55 +4,50 @@ from datetime import date
 import flet as ft
 from flet_secure_storage import SecureStorage
 
-from core.constants import DAILY_SCAN_LIMIT, STORAGE_LAST_RESET, STORAGE_SCANS
+from core.constants import DAILY_SCAN_LIMIT
 from core.state import state
 
 logger = logging.getLogger(__name__)
 
 
 class CreditService:
-    def __init__(self, page: ft.Page):
-        self._page = page
+    def __init__(self):
         self._storage = SecureStorage()
+        self._ready = False
 
-    async def initialize(self) -> int:
+    @property
+    def ready(self) -> bool:
+        return self._ready
+
+    async def _ensure_ready(self):
+        if self._ready:
+            return
         try:
-            await self._check_daily_reset()
-            used = await self._get_scans()
-            state.scans_today = used
-            return used
-        except Exception as e:
-            logger.warning("SecureStorage not available: %s", e)
+            today = date.today().isoformat()
+            last_reset = await self._storage.get("dc_last_reset")
+            if last_reset != today:
+                await self._storage.set("dc_scans", "0")
+                await self._storage.set("dc_last_reset", today)
+                state.scans_today = 0
+            else:
+                val = await self._storage.get("dc_scans")
+                state.scans_today = int(val) if val else 0
+            self._ready = True
+        except Exception:
             state.scans_today = 0
-            return 0
-
-    async def can_scan(self) -> bool:
-        return state.scans_today < DAILY_SCAN_LIMIT
 
     async def use_scan(self) -> bool:
+        await self._ensure_ready()
         if state.scans_today >= DAILY_SCAN_LIMIT:
             return False
-        new_count = state.scans_today + 1
+        state.scans_today += 1
         try:
-            await self._storage.set(STORAGE_SCANS, str(new_count))
+            if self._ready:
+                await self._storage.set("dc_scans", str(state.scans_today))
         except Exception:
-            logger.warning("Failed to persist scan count")
-        state.scans_today = new_count
+            pass
         return True
 
     async def get_remaining(self) -> int:
+        await self._ensure_ready()
         return max(0, DAILY_SCAN_LIMIT - state.scans_today)
-
-    async def _check_daily_reset(self):
-        today = date.today().isoformat()
-        last_reset = await self._storage.get(STORAGE_LAST_RESET)
-        if last_reset != today:
-            await self._storage.set(STORAGE_SCANS, "0")
-            await self._storage.set(STORAGE_LAST_RESET, today)
-
-    async def _get_scans(self) -> int:
-        val = await self._storage.get(STORAGE_SCANS)
-        try:
-            return int(val) if val else 0
-        except (TypeError, ValueError):
-            return 0
