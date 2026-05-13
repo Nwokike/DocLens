@@ -4,6 +4,7 @@ from core.state import state
 from core.theme import PRIMARY, TEXT_SECONDARY
 from core.tokens import SPACE_LG, SPACE_MD
 from services import ai_service
+from services.share import ShareService
 
 LANGUAGES = [
     "Spanish",
@@ -101,7 +102,23 @@ def build_translate_view(page: ft.Page, navigate) -> ft.View:
             translated_section,
             original_text,
             translated_text,
+            copy_btn,
+            save_doc_btn,
         ),
+    )
+
+    copy_btn = ft.IconButton(
+        icon=ft.Icons.COPY_ROUNDED,
+        tooltip="Copy",
+        visible=False,
+        on_click=lambda e: page.run_task(_copy_translation, page, state.current_translation),
+    )
+
+    save_doc_btn = ft.IconButton(
+        icon=ft.Icons.DESCRIPTION_ROUNDED,
+        tooltip="Save as Document",
+        visible=False,
+        on_click=lambda e: page.run_task(_save_translation, page, state.current_translation),
     )
 
     content = ft.Column(
@@ -112,6 +129,7 @@ def build_translate_view(page: ft.Page, navigate) -> ft.View:
                     icon=ft.Icons.ARROW_BACK_ROUNDED,
                     on_click=lambda e: page.run_task(navigate, "/result"),
                 ),
+                actions=[copy_btn, save_doc_btn],
                 bgcolor=ft.Colors.TRANSPARENT,
             ),
             ft.Container(
@@ -158,6 +176,8 @@ async def _do_translate(
     translated_section,
     original_text,
     translated_text,
+    copy_btn,
+    save_doc_btn,
 ):
     target = (
         custom_field.value.strip()
@@ -200,5 +220,17 @@ async def _do_translate(
     progress.visible = False
     translate_btn.disabled = False
     translated_section.visible = True
+    copy_btn.visible = True
+    save_doc_btn.visible = True
     status_text.value = ""
     page.update()
+
+
+async def _copy_translation(page, text):
+    share = ShareService(page)
+    await share.copy_text(text)
+
+
+async def _save_translation(page, text):
+    share = ShareService(page)
+    await share.save_as_document(text, "DocLens_Translation")
