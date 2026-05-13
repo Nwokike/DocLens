@@ -13,9 +13,6 @@ def build_scan_view(
     on_gallery,
     credit_service,
 ) -> ft.View:
-    async def show_interstitial(e):
-        await ad_service.show_interstitial()
-
     async def _open_camera_async():
         remaining = await credit_service.get_remaining()
         if remaining <= 0:
@@ -27,7 +24,7 @@ def build_scan_view(
             )
             return
         await ad_service.show_interstitial()
-        on_camera()
+        await on_camera()
 
     def open_camera(e):
         page.run_task(_open_camera_async)
@@ -43,7 +40,7 @@ def build_scan_view(
             )
             return
         await ad_service.show_interstitial()
-        on_gallery()
+        await on_gallery()
 
     def open_gallery(e):
         page.run_task(_open_gallery_async)

@@ -8,9 +8,6 @@ from services.share import ShareService
 
 
 def build_summary_view(page: ft.Page, navigate) -> ft.View:
-    if not state.current_image:
-        navigate("/scan")
-        return ft.View()
 
     status_text = ft.Text(
         "Preparing...",

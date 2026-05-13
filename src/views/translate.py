@@ -22,9 +22,6 @@ LANGUAGES = [
 
 
 def build_translate_view(page: ft.Page, navigate) -> ft.View:
-    if not state.current_image:
-        navigate("/scan")
-        return ft.View()
 
     selected_lang = "Spanish"
 

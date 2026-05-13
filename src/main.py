@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
+import warnings
 
 import flet as ft
 
@@ -19,6 +20,13 @@ from services.ad_service import AdService
 from services.credit_service import CreditService
 from services.file_picker import FilePickerService
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    datefmt="%H:%M:%S",
+    force=True,
+)
+warnings.filterwarnings("always")
 logger = logging.getLogger("doclens")
 
 if sys.platform == "win32":
