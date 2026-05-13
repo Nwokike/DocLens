@@ -8,6 +8,7 @@ dependencies = [
     "flet==0.85.1",
     "flet-ads==0.85.1",
     "flet-camera==0.85.1",
+    "flet-secure-storage==0.85.1",
     "httpx>=0.28.1",
     "pillow>=12.0.0",
     "fpdf2>=2.8.0",
@@ -26,6 +27,8 @@ bundle_id = "ng.kiri.doclens"
 
 [tool.flet.android.manifest_application]
 usesCleartextTraffic = "true"
+allowBackup = "false"
+fullBackupContent = "false"
 
 [tool.flet.android.meta_data]
 "com.google.android.gms.ads.APPLICATION_ID" = "ca-app-pub-5679949845754640~8438792639"
