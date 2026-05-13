@@ -13,12 +13,16 @@ class ShareService:
         self._page = page
 
     async def copy_text(self, text: str):
-        await self._page.clipboard.set(text)
+        from flet import Clipboard
+
+        await Clipboard().set(text)
         self._page.show_dialog(ft.SnackBar(content=ft.Text("Copied to clipboard"), duration=1500))
 
-    def share_text(self, text: str):
+    async def share_text(self, text: str):
+        from flet import UrlLauncher
+
         with contextlib.suppress(Exception):
-            self._page.launch_url(f"https://wa.me/?text={text[:500]}")
+            await UrlLauncher().launch_url(f"https://wa.me/?text={text[:500]}")
 
     async def save_as_pdf(self, image_bytes: bytes, title: str = "Document") -> str | None:
         try:

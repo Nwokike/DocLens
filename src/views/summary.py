@@ -160,7 +160,7 @@ async def _copy_summary(page, text):
 
 async def _share_summary(page, text):
     share = ShareService(page)
-    share.share_text(text)
+    await share.share_text(text)
 
 
 async def _save_doc(page, text):

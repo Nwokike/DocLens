@@ -28,7 +28,7 @@ def build_translate_view(page: ft.Page, navigate) -> ft.View:
     dropdown = ft.Dropdown(
         label="Translate to",
         value=selected_lang,
-        options=[ft.dropdown.Option(label, key=label) for _, label in LANGUAGES],
+        options=[ft.dropdown.Option(label) for _, label in LANGUAGES],
         width=300,
     )
 
