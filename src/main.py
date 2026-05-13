@@ -49,9 +49,6 @@ async def main(page: ft.Page):
     ad_service = AdService(page)
     credit_service = CreditService(page)
 
-    await credit_service.initialize()
-    page.run_task(ad_service.preload_interstitial)
-
     splash = ft.Container(
         content=ft.Column(
             [
@@ -70,6 +67,26 @@ async def main(page: ft.Page):
     )
     page.views.append(ft.View(route="/splash", controls=[splash], padding=0))
     page.update()
+
+    async def _init_services():
+        try:
+            await credit_service.initialize()
+        except Exception as e:
+            logger.warning("Credit init deferred (device session not ready yet): %s", e)
+        try:
+            page.run_task(ad_service.preload_interstitial)
+        except Exception:
+            pass
+
+    async def _on_connect(e):
+        logger.info("Page session connected — retrying service init")
+        try:
+            await credit_service.initialize()
+        except Exception:
+            pass
+
+    page.on_connect = _on_connect
+    await _init_services()
 
     await asyncio.sleep(1.5)
 

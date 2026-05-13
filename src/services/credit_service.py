@@ -16,10 +16,15 @@ class CreditService:
         self._storage = SecureStorage()
 
     async def initialize(self) -> int:
-        await self._check_daily_reset()
-        used = await self._get_scans()
-        state.scans_today = used
-        return used
+        try:
+            await self._check_daily_reset()
+            used = await self._get_scans()
+            state.scans_today = used
+            return used
+        except Exception as e:
+            logger.warning("SecureStorage not available: %s", e)
+            state.scans_today = 0
+            return 0
 
     async def can_scan(self) -> bool:
         return state.scans_today < DAILY_SCAN_LIMIT
@@ -28,9 +33,11 @@ class CreditService:
         if state.scans_today >= DAILY_SCAN_LIMIT:
             return False
         new_count = state.scans_today + 1
-        await self._storage.set(STORAGE_SCANS, str(new_count))
+        try:
+            await self._storage.set(STORAGE_SCANS, str(new_count))
+        except Exception:
+            logger.warning("Failed to persist scan count")
         state.scans_today = new_count
-        logger.info("Scan used: %d/%d", new_count, DAILY_SCAN_LIMIT)
         return True
 
     async def get_remaining(self) -> int:
@@ -42,7 +49,6 @@ class CreditService:
         if last_reset != today:
             await self._storage.set(STORAGE_SCANS, "0")
             await self._storage.set(STORAGE_LAST_RESET, today)
-            logger.info("Daily scan limit reset")
 
     async def _get_scans(self) -> int:
         val = await self._storage.get(STORAGE_SCANS)
