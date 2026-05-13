@@ -1,10 +1,13 @@
 import base64
 import json
 import logging
+from datetime import datetime
 
 import httpx
 
 from core.constants import API_CHAT_ENDPOINT, GATEWAY_SECRET, USER_AGENT
+
+_NOW = datetime.now().strftime("%A, %B %d, %Y at %I:%M %p")
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,7 @@ async def analyze_document(image_bytes: bytes, mime_type: str, on_stage=None) ->
                     {
                         "type": "text",
                         "text": (
+                            f"[Current date: {_NOW}] "
                             "You are DocLens AI. Extract ALL text from this document image "
                             "verbatim. Include every word, number, and symbol. "
                             "If it's handwritten, transcribe it as accurately as possible. "
@@ -81,6 +85,7 @@ async def summarize(text: str, stream_callback=None, on_stage=None) -> str:
             {
                 "role": "user",
                 "content": (
+                    f"[Current date: {_NOW}] "
                     "Summarize the following document text in 3-5 clear bullet points. "
                     "Capture the key facts, numbers, and conclusions. "
                     "Use plain language. Return ONLY the bullet points.\n\n"
@@ -120,6 +125,7 @@ async def translate(text: str, target_lang: str, stream_callback=None, on_stage=
             {
                 "role": "user",
                 "content": (
+                    f"[Current date: {_NOW}] "
                     f"Translate the following text to {target_lang}. "
                     "Preserve the original formatting and structure. "
                     "Return ONLY the translation.\n\n"
