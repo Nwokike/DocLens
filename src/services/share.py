@@ -1,6 +1,6 @@
 import logging
 import os
-from fpdf2 import FPDF
+from fpdf import FPDF
 
 import flet as ft
 

@@ -1,6 +1,6 @@
 API_BASE_URL = "https://api.kiri.ng"
 API_CHAT_ENDPOINT = f"{API_BASE_URL}/chat"
-GATEWAY_SECRET = "doclens-mobile-v1"
+GATEWAY_SECRET = "mobile-v1"
 USER_AGENT = "DocLens/1.0.0"
 
 DAILY_SCAN_LIMIT = 5

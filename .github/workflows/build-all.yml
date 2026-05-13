@@ -1,8 +1,6 @@
 name: Build DocLens
 
 on:
-  push:
-  pull_request:
   workflow_dispatch:
     inputs:
       build_version:
