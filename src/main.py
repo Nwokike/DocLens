@@ -47,7 +47,7 @@ async def main(page: ft.Page):
     page.on_error = lambda e: page.show_dialog(ft.SnackBar(content=ft.Text("Something went wrong.")))
 
     ad_service = AdService(page)
-    credit_service = CreditService()
+    credit_service = CreditService(page)
 
     page.run_task(ad_service.preload_interstitial)
 
@@ -55,8 +55,6 @@ async def main(page: ft.Page):
 
     async def _process_and_navigate(data, mime, filename):
         nonlocal pending_image
-        if not credit_service.ready:
-            await credit_service.initialize()
         ok = await credit_service.use_scan()
         if not ok:
             page.show_dialog(ft.SnackBar(content=ft.Text("Daily scan limit reached"), bgcolor=ft.Colors.WARNING))
