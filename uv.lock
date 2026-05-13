@@ -40,7 +40,6 @@ dependencies = [
     { name = "flet" },
     { name = "flet-ads" },
     { name = "flet-camera" },
-    { name = "flet-secure-storage" },
     { name = "fpdf2" },
     { name = "httpx" },
     { name = "pillow" },
@@ -56,7 +55,6 @@ requires-dist = [
     { name = "flet", specifier = "==0.85.1" },
     { name = "flet-ads", specifier = "==0.85.1" },
     { name = "flet-camera", specifier = "==0.85.1" },
-    { name = "flet-secure-storage", specifier = "==0.85.1" },
     { name = "fpdf2", specifier = ">=2.8.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "pillow", specifier = ">=12.0.0" },
@@ -102,18 +100,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e2/02/4891d126a87a0e0c530d6ca76675426856efd90893eb32952c956ed802b5/flet_camera-0.85.1.tar.gz", hash = "sha256:d6407eafc2a72da60716a9a5e58bd92c696c1303b1fb0d9da2bc6b274ab60258", size = 15758, upload-time = "2026-05-13T16:36:22.969Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/78/6e/d8390f99bf01b863ab645ba74e527251dd145672724312c6158b1942e348/flet_camera-0.85.1-py3-none-any.whl", hash = "sha256:18c3be7a3d82cf74e1fcad90e8aca0e199d4028a512d81a9ab34a1dfd32cb535", size = 17010, upload-time = "2026-05-13T16:36:23.933Z" },
-]
-
-[[package]]
-name = "flet-secure-storage"
-version = "0.85.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "flet" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/5c/ac/bdf8a6071d2ff2cfa7d06221c94d5189688507b08a11ca67e69ae937949c/flet_secure_storage-0.85.1.tar.gz", hash = "sha256:467119eadd3c5a0074c70a75f58c35484d620ea330e82606431cc8ff8c7ef86c", size = 15686, upload-time = "2026-05-13T16:37:01.065Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cd/b1/8b15bb05ec0548dba89dcbcf997fe564cf18c70221a07b9901241ba55204/flet_secure_storage-0.85.1-py3-none-any.whl", hash = "sha256:f898369be83a0a894bb1db759faa928385ac9af145b5136c040eee31707ce5ca", size = 16550, upload-time = "2026-05-13T16:37:00.125Z" },
 ]
 
 [[package]]
