@@ -1,6 +1,10 @@
+import base64
 import contextlib
 import logging
+import os
 from datetime import date
+
+import flet_secure_storage as fss
 
 from core.constants import DAILY_SCAN_LIMIT
 from core.state import state
@@ -8,20 +12,26 @@ from core.state import state
 logger = logging.getLogger(__name__)
 
 try:
-    from flet_secure_storage import AndroidOptions
-    from flet_secure_storage import SecureStorage as _SecureStorage
-
-    _STORAGE = _SecureStorage(
-        android_options=AndroidOptions(
+    _STORAGE = fss.SecureStorage(
+        web_options=fss.WebOptions(
+            db_name="doclens_secure",
+            public_key="doclens_public",
+            wrap_key=base64.urlsafe_b64encode(os.urandom(32)).decode(),
+            wrap_key_iv=base64.urlsafe_b64encode(os.urandom(16)).decode(),
+        ),
+        android_options=fss.AndroidOptions(
             reset_on_error=True,
             migrate_on_algorithm_change=True,
+            enforce_biometrics=False,
+            key_cipher_algorithm=fss.KeyCipherAlgorithm.AES_GCM_NO_PADDING,
+            storage_cipher_algorithm=fss.StorageCipherAlgorithm.AES_GCM_NO_PADDING,
         ),
     )
     _HAS_STORAGE = True
-except Exception:
+except Exception as e:
+    logger.warning("SecureStorage init failed (%s)", e)
     _STORAGE = None
     _HAS_STORAGE = False
-    logger.info("SecureStorage not available — using in-memory credits")
 
 
 class CreditService:
