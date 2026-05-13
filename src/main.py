@@ -21,11 +21,12 @@ from services.credit_service import CreditService
 from services.file_picker import FilePickerService
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
     datefmt="%H:%M:%S",
-    force=True,
 )
+for noisy in ("flet_controls", "flet_transport", "flet_web", "concurrent.futures"):
+    logging.getLogger(noisy).setLevel(logging.WARNING)
 warnings.filterwarnings("always")
 logger = logging.getLogger("doclens")
 

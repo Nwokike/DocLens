@@ -40,7 +40,7 @@ def build_scan_view(
             )
             return
         await ad_service.show_interstitial()
-        await on_gallery()
+        on_gallery()
 
     def open_gallery(e):
         page.run_task(_open_gallery_async)

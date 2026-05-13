@@ -8,7 +8,6 @@ dependencies = [
     "flet==0.85.1",
     "flet-ads==0.85.1",
     "flet-camera==0.85.1",
-    "flet-secure-storage==0.85.1",
     "httpx>=0.28.1",
     "pillow>=12.0.0",
     "fpdf2>=2.8.0",
