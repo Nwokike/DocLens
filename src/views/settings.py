@@ -87,7 +87,7 @@ async def build_settings_view(page: ft.Page, navigate, credit_service, ad_servic
         title=ft.Text("Settings", weight=ft.FontWeight.W_600),
         leading=ft.IconButton(
             icon=ft.Icons.ARROW_BACK_ROUNDED,
-            on_click=lambda e: navigate("/scan"),
+            on_click=lambda e: page.run_task(navigate, "/scan"),
         ),
         bgcolor=ft.Colors.TRANSPARENT,
     )

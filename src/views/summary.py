@@ -86,7 +86,7 @@ def build_summary_view(page: ft.Page, navigate) -> ft.View:
                 title=ft.Text("AI Summary", weight=ft.FontWeight.W_600),
                 leading=ft.IconButton(
                     icon=ft.Icons.ARROW_BACK_ROUNDED,
-                    on_click=lambda e: navigate("/result"),
+                    on_click=lambda e: page.run_task(navigate, "/result"),
                 ),
                 actions=[copy_btn, save_doc_btn, share_btn],
                 bgcolor=ft.Colors.TRANSPARENT,

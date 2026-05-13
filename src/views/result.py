@@ -45,7 +45,7 @@ def build_result_view(page: ft.Page, navigate) -> ft.View:
         border_radius=16,
         bgcolor=PRIMARY,
         ink=True,
-        on_click=lambda e: navigate("/summary"),
+        on_click=lambda e: page.run_task(navigate, "/summary"),
         expand=True,
     )
 
@@ -67,7 +67,7 @@ def build_result_view(page: ft.Page, navigate) -> ft.View:
         border_radius=16,
         bgcolor=ACCENT,
         ink=True,
-        on_click=lambda e: navigate("/translate"),
+        on_click=lambda e: page.run_task(navigate, "/translate"),
         expand=True,
     )
 
@@ -99,7 +99,7 @@ def build_result_view(page: ft.Page, navigate) -> ft.View:
                 title=ft.Text("Document Scan", weight=ft.FontWeight.W_600),
                 leading=ft.IconButton(
                     icon=ft.Icons.ARROW_BACK_ROUNDED,
-                    on_click=lambda e: navigate("/scan"),
+                    on_click=lambda e: page.run_task(navigate, "/scan"),
                 ),
                 bgcolor=ft.Colors.TRANSPARENT,
             ),

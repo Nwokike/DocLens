@@ -16,7 +16,7 @@ def build_scan_view(
     async def show_interstitial(e):
         await ad_service.show_interstitial()
 
-    async def open_camera(e):
+    async def _open_camera_async():
         remaining = await credit_service.get_remaining()
         if remaining <= 0:
             page.show_dialog(
@@ -29,7 +29,10 @@ def build_scan_view(
         await ad_service.show_interstitial()
         on_camera()
 
-    async def open_gallery(e):
+    def open_camera(e):
+        page.run_task(_open_camera_async)
+
+    async def _open_gallery_async():
         remaining = await credit_service.get_remaining()
         if remaining <= 0:
             page.show_dialog(
@@ -41,6 +44,9 @@ def build_scan_view(
             return
         await ad_service.show_interstitial()
         on_gallery()
+
+    def open_gallery(e):
+        page.run_task(_open_gallery_async)
 
     remaining = state.scans_today
 
@@ -60,7 +66,7 @@ def build_scan_view(
                             icon=ft.Icons.SETTINGS_OUTLINED,
                             icon_color=TEXT_SECONDARY,
                             icon_size=20,
-                            on_click=lambda e: navigate("/settings"),
+                            on_click=lambda e: page.run_task(navigate, "/settings"),
                         ),
                     ],
                     spacing=4,
