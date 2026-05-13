@@ -1,8 +1,8 @@
 import flet as ft
 
+from core.state import state
 from core.theme import PRIMARY, SURFACE_LIGHT, TEXT_SECONDARY
 from core.tokens import SPACE_LG, SPACE_XL, SPACE_XXL
-from core.state import state
 
 
 def build_scan_view(

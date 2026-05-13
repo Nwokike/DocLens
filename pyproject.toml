@@ -44,3 +44,16 @@ usesCleartextTraffic = "true"
 
 [tool.flet.ios.info]
 NSCameraUsageDescription = "DocLens uses the camera to scan documents"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.12",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "C4", "UP", "SIM"]
+ignore = ["E501"]

@@ -25,9 +25,7 @@ class CameraService:
     async def capture_photo(self) -> tuple[bytes, str] | None:
         if not _HAS_CAMERA:
             logger.info("Camera not available")
-            self._page.show_dialog(
-                ft.SnackBar(content=ft.Text("Camera is not available on this platform"))
-            )
+            self._page.show_dialog(ft.SnackBar(content=ft.Text("Camera is not available on this platform")))
             return None
 
         camera = None

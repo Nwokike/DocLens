@@ -3,8 +3,8 @@ import base64
 import flet as ft
 
 from core.state import state
-from core.theme import PRIMARY, ACCENT, SUCCESS, TEXT_SECONDARY
-from core.tokens import SPACE_MD, SPACE_LG, SPACE_XL
+from core.theme import ACCENT, PRIMARY, SUCCESS
+from core.tokens import SPACE_LG, SPACE_MD, SPACE_XL
 
 
 def build_result_view(page: ft.Page, navigate) -> ft.View:

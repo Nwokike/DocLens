@@ -1,8 +1,8 @@
 import logging
 import os
-from fpdf import FPDF
 
 import flet as ft
+from fpdf import FPDF
 
 logger = logging.getLogger(__name__)
 
@@ -13,15 +13,13 @@ class ShareService:
 
     async def copy_text(self, text: str):
         await self._page.clipboard.set(text)
-        self._page.show_dialog(
-            ft.SnackBar(content=ft.Text("Copied to clipboard"), duration=1500)
-        )
+        self._page.show_dialog(ft.SnackBar(content=ft.Text("Copied to clipboard"), duration=1500))
 
     def share_text(self, text: str):
-        try:
+        import contextlib
+
+        with contextlib.suppress(Exception):
             self._page.launch_url(f"https://wa.me/?text={text[:500]}")
-        except Exception:
-            pass
 
     async def save_as_pdf(self, image_bytes: bytes, title: str = "Document") -> str | None:
         try:
@@ -33,8 +31,9 @@ class ShareService:
             pdf.add_page()
             pdf.image(image_bytes, x=10, y=10, w=190)
 
-            from PIL import Image
             import io as _io
+
+            from PIL import Image
 
             img = Image.open(_io.BytesIO(image_bytes))
             img_w, img_h = img.size
@@ -50,15 +49,11 @@ class ShareService:
             pdf.image(image_bytes, x=10, y=10, w=pdf_w, h=pdf_h)
             pdf.output(path)
 
-            self._page.show_dialog(
-                ft.SnackBar(content=ft.Text(f"Saved to Downloads/{title}.pdf"), duration=3000)
-            )
+            self._page.show_dialog(ft.SnackBar(content=ft.Text(f"Saved to Downloads/{title}.pdf"), duration=3000))
             return path
         except Exception as e:
             logger.error("PDF save failed: %s", e)
-            self._page.show_dialog(
-                ft.SnackBar(content=ft.Text(f"Save failed: {e}"), bgcolor=ft.Colors.ERROR)
-            )
+            self._page.show_dialog(ft.SnackBar(content=ft.Text(f"Save failed: {e}"), bgcolor=ft.Colors.ERROR))
             return None
 
     async def save_as_document(self, text: str, title: str = "Document") -> str | None:
@@ -70,9 +65,7 @@ class ShareService:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(text)
 
-            self._page.show_dialog(
-                ft.SnackBar(content=ft.Text(f"Saved to Downloads/{title}.txt"), duration=3000)
-            )
+            self._page.show_dialog(ft.SnackBar(content=ft.Text(f"Saved to Downloads/{title}.txt"), duration=3000))
             return path
         except Exception as e:
             logger.error("Document save failed: %s", e)

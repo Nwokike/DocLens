@@ -1,9 +1,9 @@
 import flet as ft
 
+from core.constants import DAILY_SCAN_LIMIT
 from core.state import state
 from core.theme import PRIMARY, TEXT_SECONDARY
 from core.tokens import SPACE_LG, SPACE_MD, SPACE_XL
-from core.constants import DAILY_SCAN_LIMIT
 
 
 async def build_settings_view(page: ft.Page, navigate, credit_service, ad_service) -> ft.View:

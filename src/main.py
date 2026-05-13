@@ -35,9 +35,7 @@ async def main(page: ft.Page):
     page.padding = 0
     page.spacing = 0
 
-    page.on_error = lambda e: (
-        page.show_dialog(ft.SnackBar(content=ft.Text("Something went wrong.")))
-    )
+    page.on_error = lambda e: page.show_dialog(ft.SnackBar(content=ft.Text("Something went wrong.")))
 
     ad_service = AdService(page)
     credit_service = CreditService()
@@ -52,9 +50,7 @@ async def main(page: ft.Page):
             await credit_service.initialize()
         ok = await credit_service.use_scan()
         if not ok:
-            page.show_dialog(
-                ft.SnackBar(content=ft.Text("Daily scan limit reached"), bgcolor=ft.Colors.WARNING)
-            )
+            page.show_dialog(ft.SnackBar(content=ft.Text("Daily scan limit reached"), bgcolor=ft.Colors.WARNING))
             return
         processed = prepare_image_for_ai(data)
         state.current_image = processed
@@ -107,9 +103,7 @@ async def main(page: ft.Page):
         if route in ("/", "/scan"):
             from views.scan import build_scan_view
 
-            page.views.append(
-                build_scan_view(page, navigate, ad_service, on_camera, on_gallery, credit_service)
-            )
+            page.views.append(build_scan_view(page, navigate, ad_service, on_camera, on_gallery, credit_service))
 
         elif route == "/result":
             if not state.current_image:

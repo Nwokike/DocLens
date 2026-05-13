@@ -1,5 +1,6 @@
-from PIL import Image
 import io
+
+from PIL import Image
 
 from core.constants import IMAGE_MAX_WIDTH, JPEG_QUALITY
 

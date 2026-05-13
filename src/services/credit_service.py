@@ -1,7 +1,6 @@
 import logging
 from datetime import date
 
-import flet as ft
 from flet_secure_storage import SecureStorage
 
 from core.constants import DAILY_SCAN_LIMIT

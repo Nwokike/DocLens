@@ -2,7 +2,7 @@ import flet as ft
 
 from core.state import state
 from core.theme import PRIMARY, TEXT_SECONDARY
-from core.tokens import SPACE_LG, SPACE_MD, SPACE_XL
+from core.tokens import SPACE_LG, SPACE_MD
 from services import ai_service
 from services.share import ShareService
 

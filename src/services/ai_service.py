@@ -150,22 +150,24 @@ async def translate(text: str, target_lang: str, stream_callback=None, on_stage=
 async def _stream_chat(payload: dict, stream_callback) -> str:
     full = ""
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            async with client.stream("POST", API_CHAT_ENDPOINT, headers=_HEADERS, json=payload) as resp:
-                resp.raise_for_status()
-                async for line in resp.aiter_lines():
-                    if line.startswith("data: "):
-                        data_str = line[6:]
-                        if data_str == "[DONE]":
-                            break
-                        try:
-                            chunk = json.loads(data_str)
-                            content = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
-                            if content:
-                                full += content
-                                stream_callback(full)
-                        except json.JSONDecodeError:
-                            continue
+        async with (
+            httpx.AsyncClient(timeout=60.0) as client,
+            client.stream("POST", API_CHAT_ENDPOINT, headers=_HEADERS, json=payload) as resp,
+        ):
+            resp.raise_for_status()
+            async for line in resp.aiter_lines():
+                if line.startswith("data: "):
+                    data_str = line[6:]
+                    if data_str == "[DONE]":
+                        break
+                    try:
+                        chunk = json.loads(data_str)
+                        content = chunk.get("choices", [{}])[0].get("delta", {}).get("content", "")
+                        if content:
+                            full += content
+                            stream_callback(full)
+                    except json.JSONDecodeError:
+                        continue
     except Exception as e:
         logger.error("Stream failed: %s", e)
 
