@@ -17,7 +17,6 @@ class AppState:
     is_processing: bool = False
 
     scans_today: int = 0
-    daily_scan_limit: int = 5
 
     theme_mode: ft.ThemeMode = ft.ThemeMode.LIGHT
 

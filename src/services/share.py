@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os
 
@@ -16,8 +17,6 @@ class ShareService:
         self._page.show_dialog(ft.SnackBar(content=ft.Text("Copied to clipboard"), duration=1500))
 
     def share_text(self, text: str):
-        import contextlib
-
         with contextlib.suppress(Exception):
             self._page.launch_url(f"https://wa.me/?text={text[:500]}")
 
@@ -27,22 +26,14 @@ class ShareService:
             os.makedirs(downloads, exist_ok=True)
             path = os.path.join(downloads, f"{title}.pdf")
 
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.image(image_bytes, x=10, y=10, w=190)
-
             import io as _io
 
             from PIL import Image
 
             img = Image.open(_io.BytesIO(image_bytes))
-            img_w, img_h = img.size
-            aspect = img_h / img_w
+            aspect = img.height / img.width
             pdf_w = 190
-            pdf_h = pdf_w * aspect
-
-            if pdf_h > 270:
-                pdf_h = 270
+            pdf_h = min(pdf_w * aspect, 270)
 
             pdf = FPDF()
             pdf.add_page()

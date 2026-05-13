@@ -1,21 +1,12 @@
 import flet as ft
 
 PRIMARY = "#2563EB"
-PRIMARY_DARK = "#1D4ED8"
 ACCENT = "#06B6D4"
-
-SURFACE_LIGHT = "#FFFFFF"
-SURFACE_DARK = "#0F172A"
-
 TEXT_PRIMARY = "#1E293B"
 TEXT_SECONDARY = "#64748B"
-
 SUCCESS = "#10B981"
 WARNING = "#F59E0B"
 ERROR = "#EF4444"
-
-BG_LIGHT = "#F8FAFC"
-BG_DARK = "#0F172A"
 
 
 class AppTheme:
@@ -27,7 +18,7 @@ class AppTheme:
                 on_primary=ft.Colors.WHITE,
                 primary_container="#DBEAFE",
                 secondary=ACCENT,
-                surface=BG_LIGHT,
+                surface="#F8FAFC",
                 on_surface=TEXT_PRIMARY,
                 on_surface_variant=TEXT_SECONDARY,
                 error=ERROR,
@@ -44,7 +35,7 @@ class AppTheme:
                 on_primary=ft.Colors.WHITE,
                 primary_container="#1E3A5F",
                 secondary=ACCENT,
-                surface=BG_DARK,
+                surface="#0F172A",
                 on_surface=ft.Colors.WHITE,
                 on_surface_variant="#94A3B8",
                 error=ERROR,

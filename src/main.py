@@ -44,7 +44,13 @@ async def main(page: ft.Page):
     page.padding = 0
     page.spacing = 0
 
-    page.on_error = lambda e: page.show_dialog(ft.SnackBar(content=ft.Text("Something went wrong.")))
+    def on_error(e):
+        logger.error("Page error: %s", e.data)
+        page.snack_bar = ft.SnackBar(content=ft.Text("Something went wrong."))
+        page.snack_bar.open = True
+        page.update()
+
+    page.on_error = on_error
 
     ad_service = AdService(page)
     credit_service = CreditService(page)

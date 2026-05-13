@@ -1,5 +1,6 @@
 import flet as ft
 
+from core.constants import DAILY_SCAN_LIMIT
 from core.state import state
 from core.theme import PRIMARY, TEXT_SECONDARY
 from core.tokens import SPACE_LG, SPACE_XL, SPACE_XXL
@@ -60,7 +61,7 @@ def build_scan_view(
                     [
                         ft.Icon(ft.Icons.CAMERA_ALT_OUTLINED, size=16, color=TEXT_SECONDARY),
                         ft.Text(
-                            f"{state.scans_today}/{15}",
+                            f"{state.scans_today}/{DAILY_SCAN_LIMIT}",
                             size=14,
                             color=TEXT_SECONDARY,
                         ),
