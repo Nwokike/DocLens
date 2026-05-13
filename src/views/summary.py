@@ -77,6 +77,13 @@ def build_summary_view(page: ft.Page, navigate) -> ft.View:
         visible=False,
     )
 
+    save_pdf_btn = ft.IconButton(
+        icon=ft.Icons.PICTURE_AS_PDF_ROUNDED,
+        tooltip="Save as PDF",
+        on_click=lambda e: page.run_task(_save_summary_pdf, page, state.current_summary),
+        visible=False,
+    )
+
     content = ft.Column(
         [
             ft.AppBar(
@@ -85,7 +92,7 @@ def build_summary_view(page: ft.Page, navigate) -> ft.View:
                     icon=ft.Icons.ARROW_BACK_ROUNDED,
                     on_click=lambda e: page.run_task(navigate, "/result"),
                 ),
-                actions=[copy_btn, save_doc_btn, share_btn],
+                actions=[copy_btn, save_doc_btn, save_pdf_btn, share_btn],
                 bgcolor=ft.Colors.TRANSPARENT,
             ),
             status_area,
@@ -108,6 +115,7 @@ def build_summary_view(page: ft.Page, navigate) -> ft.View:
         share_btn,
         copy_btn,
         save_doc_btn,
+        save_pdf_btn,
     )
 
     return view
@@ -123,6 +131,7 @@ async def _generate_summary(
     share_btn,
     copy_btn,
     save_doc_btn,
+    save_pdf_btn,
 ):
     def on_stage(msg):
         status_text.value = msg
@@ -150,6 +159,7 @@ async def _generate_summary(
     share_btn.visible = True
     copy_btn.visible = True
     save_doc_btn.visible = True
+    save_pdf_btn.visible = True
     page.update()
 
 
@@ -166,3 +176,8 @@ async def _share_summary(page, text):
 async def _save_doc(page, text):
     share = ShareService(page)
     await share.save_as_document(text, "DocLens_Summary")
+
+
+async def _save_summary_pdf(page, text):
+    share = ShareService(page)
+    await share.save_text_as_pdf(text, "DocLens_Summary")

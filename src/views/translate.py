@@ -6,46 +6,38 @@ from core.tokens import SPACE_LG, SPACE_MD
 from services import ai_service
 
 LANGUAGES = [
-    ("en", "English"),
-    ("es", "Spanish"),
-    ("fr", "French"),
-    ("de", "German"),
-    ("zh", "Chinese"),
-    ("ja", "Japanese"),
-    ("ar", "Arabic"),
-    ("pt", "Portuguese"),
-    ("it", "Italian"),
-    ("ru", "Russian"),
-    ("ko", "Korean"),
-    ("nl", "Dutch"),
+    "Spanish",
+    "French",
+    "German",
+    "Chinese",
+    "Japanese",
+    "Arabic",
+    "Portuguese",
+    "Italian",
+    "Russian",
+    "Korean",
+    "Dutch",
 ]
 
 
 def build_translate_view(page: ft.Page, navigate) -> ft.View:
 
-    selected_lang = "Spanish"
-
     dropdown = ft.Dropdown(
-        label="Translate to",
-        value=selected_lang,
-        options=[ft.dropdown.Option(label) for _, label in LANGUAGES],
+        label="Select language",
+        value="Spanish",
+        options=[ft.dropdown.Option(lang) for lang in LANGUAGES],
         width=300,
     )
 
-    status_text = ft.Text(
-        "",
-        size=14,
-        color=TEXT_SECONDARY,
-        text_align=ft.TextAlign.CENTER,
+    custom_field = ft.TextField(
+        hint_text="Or type a custom language...",
+        width=300,
+        dense=True,
     )
 
-    progress = ft.ProgressRing(
-        width=32,
-        height=32,
-        stroke_width=3,
-        color=PRIMARY,
-        visible=False,
-    )
+    status_text = ft.Text("", size=14, color=TEXT_SECONDARY, text_align=ft.TextAlign.CENTER)
+
+    progress = ft.ProgressRing(width=32, height=32, stroke_width=3, color=PRIMARY, visible=False)
 
     original_text = ft.Markdown(
         "",
@@ -94,13 +86,14 @@ def build_translate_view(page: ft.Page, navigate) -> ft.View:
         visible=False,
     )
 
-    translate_btn = ft.ElevatedButton(
+    translate_btn = ft.FilledButton(
         "Translate",
         icon=ft.Icons.TRANSLATE_ROUNDED,
         on_click=lambda e: page.run_task(
             _do_translate,
             page,
             dropdown,
+            custom_field,
             status_text,
             progress,
             translate_btn,
@@ -126,18 +119,14 @@ def build_translate_view(page: ft.Page, navigate) -> ft.View:
                     [
                         ft.Container(
                             content=ft.Column(
-                                [dropdown, ft.Container(height=SPACE_LG), translate_btn],
+                                [dropdown, custom_field, ft.Container(height=SPACE_LG), translate_btn],
                                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                 spacing=0,
                             ),
                             alignment=ft.Alignment.CENTER,
                         ),
                         ft.Container(height=SPACE_LG),
-                        ft.Row(
-                            [progress, status_text],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                            spacing=SPACE_MD,
-                        ),
+                        ft.Row([progress, status_text], alignment=ft.MainAxisAlignment.CENTER, spacing=SPACE_MD),
                         ft.Container(height=SPACE_LG),
                         original_section,
                         ft.Container(height=SPACE_MD),
@@ -145,6 +134,7 @@ def build_translate_view(page: ft.Page, navigate) -> ft.View:
                     ],
                     spacing=0,
                     expand=True,
+                    scroll=ft.ScrollMode.AUTO,
                 ),
                 padding=SPACE_LG,
                 expand=True,
@@ -160,6 +150,7 @@ def build_translate_view(page: ft.Page, navigate) -> ft.View:
 async def _do_translate(
     page,
     dropdown,
+    custom_field,
     status_text,
     progress,
     translate_btn,
@@ -168,7 +159,11 @@ async def _do_translate(
     original_text,
     translated_text,
 ):
-    target = dropdown.value or "Spanish"
+    target = (
+        custom_field.value.strip()
+        if custom_field.value and custom_field.value.strip()
+        else (dropdown.value or "Spanish")
+    )
     progress.visible = True
     translate_btn.disabled = True
     page.update()

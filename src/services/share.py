@@ -51,6 +51,27 @@ class ShareService:
             self._page.show_dialog(ft.SnackBar(content=ft.Text(f"Save failed: {e}"), bgcolor=ft.Colors.ERROR))
             return None
 
+    async def save_text_as_pdf(self, text: str, title: str = "Document") -> str | None:
+        try:
+            downloads = os.path.expanduser("~/Downloads")
+            os.makedirs(downloads, exist_ok=True)
+            path = os.path.join(downloads, f"{title}.pdf")
+
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_auto_page_break(auto=True, margin=15)
+            pdf.set_font("Courier", size=10)
+            for line in text.split("\n"):
+                pdf.multi_cell(0, 5, line)
+            pdf.output(path)
+
+            self._page.show_dialog(ft.SnackBar(content=ft.Text(f"Saved to Downloads/{title}.pdf"), duration=3000))
+            return path
+        except Exception as e:
+            logger.error("PDF save failed: %s", e)
+            self._page.show_dialog(ft.SnackBar(content=ft.Text(f"Save failed: {e}"), bgcolor=ft.Colors.ERROR))
+            return None
+
     async def save_as_document(self, text: str, title: str = "Document") -> str | None:
         try:
             downloads = os.path.expanduser("~/Downloads")
