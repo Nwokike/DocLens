@@ -19,6 +19,7 @@ from core.utils import prepare_image_for_ai
 from services.ad_service import AdService
 from services.credit_service import CreditService
 from services.file_picker import FilePickerService
+from services.storage_service import StorageService
 
 logging.basicConfig(
     level=logging.INFO,
@@ -53,9 +54,11 @@ async def main(page: ft.Page):
     page.on_error = on_error
 
     ad_service = AdService(page)
-    credit_service = CreditService(page)
+    storage = StorageService(page)
+    credit_service = CreditService(storage)
 
     page.run_task(ad_service.preload_interstitial)
+    page.run_task(credit_service.initialize())
 
     pending_image = None
 
