@@ -1,4 +1,5 @@
 import base64
+import os
 
 import flet as ft
 
@@ -56,7 +57,9 @@ def build_result_view(page: ft.Page, navigate) -> ft.View:
             for p in pages:
                 pdf.add_page()
                 pdf.image(p["bytes"], x=10, y=10, w=190)
-            path = "/storage/emulated/0/Download/DocLens_Combined.pdf"
+            downloads = os.path.expanduser("~/Downloads")
+            os.makedirs(downloads, exist_ok=True)
+            path = os.path.join(downloads, "DocLens_Combined.pdf")
             try:
                 pdf.output(path)
                 page.show_dialog(ft.SnackBar(content=ft.Text(f"Saved {len(pages)} pages to Downloads"), duration=3000))
