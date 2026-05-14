@@ -35,6 +35,14 @@ package_files = ["**/*.pyi", "**/*.c", "**/*.h", "**/*.pxd", "**/test*", "**/tes
 bundle_id = "ng.kiri.doclens"
 split_per_abi = true
 
+[tool.flet.android.app.boot_screen]
+show = true
+message = "DocLens"
+
+[tool.flet.android.app.startup_screen]
+show = true
+message = "Getting ready…"
+
 [tool.flet.android.manifest_application]
 usesCleartextTraffic = "true"
 allowBackup = "false"
