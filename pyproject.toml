@@ -20,9 +20,20 @@ build_number = 1
 
 [tool.flet.app]
 path = "src"
+exclude = ["__pycache__", ".git", "*.db", "tests", "*.md"]
+
+[tool.flet.compile]
+app = true
+packages = true
+
+[tool.flet.cleanup]
+app = true
+packages = true
+package_files = ["**/*.pyi", "**/*.c", "**/*.h", "**/*.pxd", "**/test*", "**/tests/"]
 
 [tool.flet.android]
 bundle_id = "ng.kiri.doclens"
+split_per_abi = true
 
 [tool.flet.android.manifest_application]
 usesCleartextTraffic = "true"
