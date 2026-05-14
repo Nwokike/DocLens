@@ -34,7 +34,7 @@ def build_scan_view(page, navigate, ad_service, on_camera, on_gallery, credit_se
     def open_gallery(e):
         page.run_task(_open_gallery_async)
 
-    remaining = state.scans_today
+    remaining = max(0, DAILY_SCAN_LIMIT - state.scans_today)
 
     header = ft.Container(
         content=ft.Row(

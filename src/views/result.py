@@ -5,7 +5,7 @@ import flet as ft
 
 from core.state import state
 from core.theme import ACCENT, PRIMARY, SUCCESS, TEXT_SECONDARY
-from core.tokens import RADIUS_LG, SPACE_LG, SPACE_MD, SPACE_SM
+from core.tokens import RADIUS_LG, RADIUS_MD, SPACE_LG, SPACE_MD, SPACE_SM
 
 
 def build_result_view(page, navigate):
@@ -15,80 +15,86 @@ def build_result_view(page, navigate):
         return ft.View()
 
     b64 = base64.b64encode(state.current_image).decode("utf-8") if state.current_image else ""
-    page_count = len(state.batch_pages) + (1 if state.current_image else 0)
+    all_pages = list(state.batch_pages) + (
+        [{"bytes": state.current_image, "mime": state.current_image_mime, "name": state.current_image_name}]
+        if state.current_image
+        else []
+    )
+    page_count = len(all_pages)
 
-    pages_list = ft.Column(spacing=SPACE_SM)
-    pages_container = ft.Container(content=pages_list, visible=False, expand=True)
+    pages_column = ft.Column(spacing=SPACE_SM)
+    pages_section = ft.Container(content=pages_column, visible=page_count > 1, expand=True)
 
-    def _refresh_pages():
-        pages_list.controls.clear()
-        all_pages = list(state.batch_pages)
+    def _rebuild_pages():
+        pages_column.controls.clear()
+        current = list(state.batch_pages)
         if state.current_image:
-            all_pages.append(
+            current.append(
                 {"bytes": state.current_image, "mime": state.current_image_mime, "name": state.current_image_name}
             )
-        for i, p in enumerate(all_pages):
+        for idx, p in enumerate(current):
             pb64 = base64.b64encode(p["bytes"]).decode("utf-8")
-            pages_list.controls.append(
-                ft.Container(
-                    content=ft.Row(
-                        [
-                            ft.Container(
-                                content=ft.Image(src=f"data:{p['mime']};base64,{pb64}", fit=ft.BoxFit.COVER),
-                                width=48,
-                                height=48,
-                                border_radius=8,
-                                clip_behavior=ft.ClipBehavior.HARD_EDGE,
-                            ),
-                            ft.Column(
-                                [
-                                    ft.Text(f"Page {i + 1}", size=13, weight=ft.FontWeight.W_500),
-                                    ft.Text(f"{len(p['bytes'])} bytes", size=11, color=TEXT_SECONDARY),
-                                ],
-                                spacing=1,
-                                expand=True,
-                            ),
-                        ],
-                        spacing=SPACE_MD,
-                        vertical_alignment=ft.CrossAxisAlignment.CENTER,
+            pages_column.controls.append(
+                ft.Dismissible(
+                    content=ft.Container(
+                        content=ft.Row(
+                            [
+                                ft.Container(
+                                    content=ft.Image(src=f"data:{p['mime']};base64,{pb64}", fit=ft.BoxFit.COVER),
+                                    width=44,
+                                    height=44,
+                                    border_radius=8,
+                                    clip_behavior=ft.ClipBehavior.HARD_EDGE,
+                                ),
+                                ft.Column(
+                                    [
+                                        ft.Text(f"Page {idx + 1}", size=13, weight=ft.FontWeight.W_500),
+                                        ft.Text(f"{len(p['bytes']) // 1024}KB", size=11, color=TEXT_SECONDARY),
+                                    ],
+                                    spacing=1,
+                                    expand=True,
+                                ),
+                            ],
+                            spacing=SPACE_MD,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                        padding=SPACE_MD,
+                        bgcolor=ft.Colors.SURFACE,
+                        border_radius=RADIUS_MD,
+                        border=ft.Border.all(1, ft.Colors.with_opacity(0.06, PRIMARY)),
                     ),
-                    padding=SPACE_MD,
-                    bgcolor=ft.Colors.SURFACE,
-                    border_radius=RADIUS_LG,
-                    border=ft.Border.all(1, ft.Colors.with_opacity(0.06, PRIMARY)),
+                    dismiss_direction=ft.DismissDirection.END_TO_START,
+                    on_dismiss=lambda _, i=idx: _delete_page(i),
+                    background=ft.Container(
+                        bgcolor=ft.Colors.ERROR,
+                        alignment=ft.Alignment.CENTER_RIGHT,
+                        padding=ft.Padding(0, 0, 16, 0),
+                        content=ft.Icon(ft.Icons.DELETE_ROUNDED, color=ft.Colors.WHITE),
+                    ),
                 )
             )
-        pages_container.visible = len(all_pages) > 1
+        pages_section.visible = len(current) > 1
         page.update()
 
-    _refresh_pages()
+    def _delete_page(idx):
+        if idx < len(state.batch_pages):
+            del state.batch_pages[idx]
+        elif idx == len(state.batch_pages) and state.current_image:
+            state.current_image = None
+        _rebuild_pages()
+
+    _rebuild_pages()
 
     image_display = ft.Container(
         content=ft.Image(
             src=f"data:{state.current_image_mime};base64,{b64}", fit=ft.BoxFit.CONTAIN, border_radius=RADIUS_LG
-        ),
+        )
+        if state.current_image
+        else ft.Container(),
         border_radius=RADIUS_LG,
         border=ft.Border.all(1, ft.Colors.with_opacity(0.1, PRIMARY)),
-        height=280,
+        height=260,
         clip_behavior=ft.ClipBehavior.HARD_EDGE,
-    )
-
-    status_badge = ft.Container(
-        content=ft.Row(
-            [
-                ft.Icon(ft.Icons.CHECK_CIRCLE_ROUNDED, size=14, color=SUCCESS),
-                ft.Text(
-                    f"{page_count} page{'s' if page_count > 1 else ''} captured",
-                    size=12,
-                    color=SUCCESS,
-                    weight=ft.FontWeight.W_500,
-                ),
-            ],
-            spacing=4,
-        ),
-        padding=ft.Padding(10, 4, 10, 4),
-        bgcolor=ft.Colors.with_opacity(0.1, SUCCESS),
-        border_radius=20,
     )
 
     def _add_page(e):
@@ -96,7 +102,7 @@ def build_result_view(page, navigate):
         state.current_image = None
         page.run_task(navigate, "/scan")
 
-    async def _combine_pdf(e):
+    async def _save_pdf(e):
         pages = list(state.batch_pages)
         if state.current_image:
             pages.append(
@@ -110,7 +116,7 @@ def build_result_view(page, navigate):
             pdf.image(p["bytes"], x=10, y=10, w=190)
         downloads = os.path.expanduser("~/Downloads")
         os.makedirs(downloads, exist_ok=True)
-        path = os.path.join(downloads, "DocLens_Combined.pdf")
+        path = os.path.join(downloads, "DocLens_Scan.pdf")
         try:
             pdf.output(path)
             page.show_dialog(ft.SnackBar(content=ft.Text(f"Saved {len(pages)} pages to Downloads"), duration=3000))
@@ -123,7 +129,7 @@ def build_result_view(page, navigate):
             ft.Column(
                 [
                     ft.AppBar(
-                        title=ft.Text("Document Scan", weight=ft.FontWeight.W_600),
+                        title=ft.Text("Scan Review", weight=ft.FontWeight.W_600),
                         leading=ft.IconButton(
                             icon=ft.Icons.ARROW_BACK_ROUNDED, on_click=lambda e: page.run_task(navigate, "/scan")
                         ),
@@ -134,29 +140,31 @@ def build_result_view(page, navigate):
                             [
                                 image_display,
                                 ft.Container(height=SPACE_SM),
-                                status_badge,
+                                ft.Container(
+                                    content=ft.Row(
+                                        [
+                                            ft.Icon(ft.Icons.CHECK_CIRCLE_ROUNDED, size=14, color=SUCCESS),
+                                            ft.Text(
+                                                f"{page_count} page{'s' if page_count > 1 else ''}",
+                                                size=12,
+                                                color=SUCCESS,
+                                            ),
+                                        ],
+                                        spacing=4,
+                                    ),
+                                    padding=ft.Padding(10, 4, 10, 4),
+                                    bgcolor=ft.Colors.with_opacity(0.1, SUCCESS),
+                                    border_radius=20,
+                                ),
                                 ft.Container(height=SPACE_MD),
-                                pages_container,
-                                ft.Container(height=SPACE_MD),
-                                ft.Row(
-                                    [
-                                        ft.OutlinedButton(
-                                            "Add Page", icon=ft.Icons.ADD_ROUNDED, expand=True, on_click=_add_page
-                                        ),
-                                        ft.FilledButton(
-                                            "Combine PDF",
-                                            icon=ft.Icons.PICTURE_AS_PDF_ROUNDED,
-                                            expand=True,
-                                            on_click=lambda e: page.run_task(_combine_pdf, e),
-                                        ),
-                                    ],
-                                    spacing=SPACE_MD,
+                                pages_section,
+                                ft.Container(height=SPACE_SM),
+                                ft.OutlinedButton(
+                                    "Add Another Page", icon=ft.Icons.ADD_ROUNDED, expand=True, on_click=_add_page
                                 ),
                                 ft.Container(height=SPACE_LG),
                                 ft.Divider(height=1, color=ft.Colors.with_opacity(0.06, PRIMARY)),
                                 ft.Container(height=SPACE_MD),
-                                ft.Text("AI TOOLS", size=12, weight=ft.FontWeight.BOLD, color=TEXT_SECONDARY),
-                                ft.Container(height=SPACE_SM),
                                 ft.Row(
                                     [
                                         ft.Container(
@@ -166,8 +174,8 @@ def build_result_view(page, navigate):
                                                         ft.Icons.AUTO_AWESOME_ROUNDED, size=22, color=ft.Colors.WHITE
                                                     ),
                                                     ft.Text(
-                                                        "Summary",
-                                                        size=12,
+                                                        "AI Summary",
+                                                        size=11,
                                                         color=ft.Colors.WHITE,
                                                         weight=ft.FontWeight.W_600,
                                                     ),
@@ -188,7 +196,7 @@ def build_result_view(page, navigate):
                                                     ft.Icon(ft.Icons.TRANSLATE_ROUNDED, size=22, color=ft.Colors.WHITE),
                                                     ft.Text(
                                                         "Translate",
-                                                        size=12,
+                                                        size=11,
                                                         color=ft.Colors.WHITE,
                                                         weight=ft.FontWeight.W_600,
                                                     ),
@@ -209,7 +217,7 @@ def build_result_view(page, navigate):
                                                     ft.Icon(ft.Icons.DOWNLOAD_ROUNDED, size=22, color=ft.Colors.WHITE),
                                                     ft.Text(
                                                         "Save PDF",
-                                                        size=12,
+                                                        size=11,
                                                         color=ft.Colors.WHITE,
                                                         weight=ft.FontWeight.W_600,
                                                     ),
@@ -222,7 +230,7 @@ def build_result_view(page, navigate):
                                             bgcolor=SUCCESS,
                                             expand=True,
                                             ink=True,
-                                            on_click=lambda e: page.run_task(_combine_pdf, e),
+                                            on_click=lambda e: page.run_task(_save_pdf, e),
                                         ),
                                     ],
                                     spacing=SPACE_MD,
@@ -237,7 +245,7 @@ def build_result_view(page, navigate):
                 ],
                 spacing=0,
                 expand=True,
-            ),
+            )
         ],
         padding=0,
     )

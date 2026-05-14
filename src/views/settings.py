@@ -59,6 +59,18 @@ async def build_settings_view(page: ft.Page, navigate, credit_service, ad_servic
                 ),
             ),
         ),
+        section_header("PREMIUM"),
+        setting_tile(
+            ft.Icons.LOCK_OUTLINED,
+            "Unlock Unlimited Scans",
+            "Coming Soon 🔒",
+            trailing=ft.Container(
+                content=ft.Text("Soon", size=11, color=ft.Colors.WHITE),
+                padding=ft.Padding(8, 2, 8, 2),
+                bgcolor=PRIMARY,
+                border_radius=4,
+            ),
+        ),
         section_header("APPEARANCE"),
         setting_tile(
             theme_icon,
