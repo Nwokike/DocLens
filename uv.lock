@@ -37,6 +37,7 @@ name = "doclens"
 version = "1.0.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "certifi" },
     { name = "flet" },
     { name = "flet-ads" },
     { name = "flet-camera" },
@@ -52,6 +53,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2025.0.0" },
     { name = "flet", specifier = "==0.85.1" },
     { name = "flet-ads", specifier = "==0.85.1" },
     { name = "flet-camera", specifier = "==0.85.1" },
